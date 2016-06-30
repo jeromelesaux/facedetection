@@ -209,7 +209,7 @@ func (f *FaceDetector) Equals(r1 *FoundRect, r2 *FoundRect) bool {
 
 func (f *FaceDetector) GetFaces() []*FoundRect {
 	fmt.Println("GetFaces.")
-	return f.merge(f.FoundRects, 3)
+	return f.merge(f.FoundRects, 4)
 }
 
 func (f *FaceDetector) merge(rects []*FoundRect, minNeighbors int64) []*FoundRect {
@@ -245,12 +245,14 @@ func (f *FaceDetector) merge(rects []*FoundRect, minNeighbors int64) []*FoundRec
 
 	for i := 0; i < nbClasses; i++ {
 		n := neighbors[i]
-		r := &FoundRect{X: 0, Y: 0, Width: 0, Height: 0}
-		r.X = (rect[i].X*2 + n) / (2 * n)
-		r.Y = (rect[i].Y*2 + n) / (2 * n)
-		r.Width = (rect[i].Width*2 + n) / (2 * n)
-		r.Height = (rect[i].Height*2 + n) / (2 * n)
-		retour = append(retour, r)
+		if int64(n) >= minNeighbors {
+			r := &FoundRect{X: 0, Y: 0, Width: 0, Height: 0}
+			r.X = (rect[i].X*2 + n) / (2 * n)
+			r.Y = (rect[i].Y*2 + n) / (2 * n)
+			r.Width = (rect[i].Width*2 + n) / (2 * n)
+			r.Height = (rect[i].Height*2 + n) / (2 * n)
+			retour = append(retour, r)
+		}
 	}
 	return retour
 
@@ -288,7 +290,7 @@ func NewFaceDetector(imagePath string) *FaceDetector {
 		return face
 	}
 	defer f.Close()
-	face.Image, err = png.Decode(f)
+	face.Image, _, err = image.Decode(f)
 	if err != nil {
 		return face
 	}

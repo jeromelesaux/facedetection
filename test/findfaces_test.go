@@ -1,7 +1,7 @@
 package test
 
 import (
-	"facerecognition/facedetector"
+	"facedetection/facedetector"
 	"fmt"
 	"testing"
 )

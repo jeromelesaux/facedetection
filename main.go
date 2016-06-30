@@ -1,7 +1,7 @@
 package main
 
 import (
-	"facerecognition/facedetector"
+	"facedetection/facedetector"
 	"fmt"
 	"os"
 )
