@@ -3,6 +3,7 @@ package facedetector
 import (
 	"encoding/xml"
 	"fmt"
+	"github.com/harrydb/go/img/grayscale"
 	"golang.org/x/image/draw"
 	"image"
 	_ "image/gif"
@@ -437,6 +438,7 @@ func NewFaceDetector(imagePath string) *FaceDetector {
 	if err != nil {
 		return &FaceDetector{}
 	}
+	grayimg := grayscale.Convert(imgData, grayscale.ToGrayLuminance)
 
-	return NewFaceDectectorFromImage(imgData)
+	return NewFaceDectectorFromImage(grayimg)
 }
