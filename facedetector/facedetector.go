@@ -319,6 +319,7 @@ func NewFaceDectectorFromImage(imgData image.Image) *FaceDetector {
 
 		fxml, err := os.Open("haarcascade_frontalface_default.xml")
 		if err != nil {
+			panic(err.Error())
 			return
 		}
 		defer fxml.Close()
