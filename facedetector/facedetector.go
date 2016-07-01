@@ -5,9 +5,13 @@ import (
 	"fmt"
 	"golang.org/x/image/draw"
 	"image"
+	_ "image/gif"
+	_ "image/jpeg"
 	"image/png"
 	"math"
+	"math/rand"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -209,7 +213,7 @@ func (f *FaceDetector) Equals(r1 *FoundRect, r2 *FoundRect) bool {
 
 func (f *FaceDetector) GetFaces() []*FoundRect {
 	fmt.Println("GetFaces.")
-	return f.merge(f.FoundRects, 4)
+	return f.merge(f.FoundRects, 1)
 }
 
 func (f *FaceDetector) merge(rects []*FoundRect, minNeighbors int64) []*FoundRect {
@@ -258,15 +262,37 @@ func (f *FaceDetector) merge(rects []*FoundRect, minNeighbors int64) []*FoundRec
 
 }
 
-func (face *FaceDetector) DrawOnImage() {
-
+func (face *FaceDetector) DrawImageInDirectory(directory string) []string {
+	filesPath := make([]string, 0)
 	for i, r := range face.GetFaces() {
-
+		b := make([]byte, 16)
+		rand.Read(b)
+		id := fmt.Sprintf("%X", b)
 		dstRect := image.Rect(r.X, r.Y, (r.X + r.Width), (r.Y + r.Height))
 		//fmt.Println(dstRect)
 		dst := image.NewRGBA(dstRect)
 		draw.Draw(dst, dstRect, face.Image, image.Point{r.X, r.Y}, draw.Src)
-		filename := "face_" + strconv.Itoa(r.X) + "_" + strconv.Itoa(r.Y) + "_" + strconv.Itoa(r.Width) + "_" + strconv.Itoa(r.Height) + strconv.Itoa(i) + ".png"
+		filename := directory + string(filepath.Separator) + "face_" + id + "_" + strconv.Itoa(r.X) + "_" + strconv.Itoa(r.Y) + "_" + strconv.Itoa(r.Width) + "_" + strconv.Itoa(r.Height) + strconv.Itoa(i) + ".png"
+		fdst, _ := os.Create(filename)
+		defer fdst.Close()
+		png.Encode(fdst, dst)
+		fmt.Printf("File %s saved as png.\n", filename)
+		filesPath = append(filesPath, filename)
+	}
+	return filesPath
+}
+
+func (face *FaceDetector) DrawOnImage() {
+
+	for i, r := range face.GetFaces() {
+		b := make([]byte, 16)
+		rand.Read(b)
+		id := fmt.Sprintf("%X", b)
+		dstRect := image.Rect(r.X, r.Y, (r.X + r.Width), (r.Y + r.Height))
+		//fmt.Println(dstRect)
+		dst := image.NewRGBA(dstRect)
+		draw.Draw(dst, dstRect, face.Image, image.Point{r.X, r.Y}, draw.Src)
+		filename := "face_" + id + "_" + strconv.Itoa(r.X) + "_" + strconv.Itoa(r.Y) + "_" + strconv.Itoa(r.Width) + "_" + strconv.Itoa(r.Height) + strconv.Itoa(i) + ".png"
 		fdst, _ := os.Create(filename)
 		defer fdst.Close()
 		png.Encode(fdst, dst)
@@ -275,8 +301,7 @@ func (face *FaceDetector) DrawOnImage() {
 	}
 
 }
-
-func NewFaceDetector(imagePath string) *FaceDetector {
+func NewFaceDectectorFromImage(imgData image.Image) *FaceDetector {
 	var err error
 	face := &FaceDetector{}
 	defer func() {
@@ -285,12 +310,7 @@ func NewFaceDetector(imagePath string) *FaceDetector {
 			return
 		}
 	}()
-	f, err := os.Open(imagePath)
-	if err != nil {
-		return face
-	}
-	defer f.Close()
-	face.Image, _, err = image.Decode(f)
+	face.Image = imgData
 	if err != nil {
 		return face
 	}
@@ -301,7 +321,7 @@ func NewFaceDetector(imagePath string) *FaceDetector {
 		if err != nil {
 			return
 		}
-		defer f.Close()
+		defer fxml.Close()
 		o := &OpenCVStorage{}
 		err = xml.NewDecoder(fxml).Decode(o)
 		if err != nil {
@@ -387,6 +407,7 @@ func NewFaceDetector(imagePath string) *FaceDetector {
 
 				if pass == true {
 					fr := &FoundRect{X: i, Y: j, Width: size, Height: size}
+					fmt.Println(fr)
 					face.FoundRects = append(face.FoundRects, fr)
 				}
 			}
@@ -395,4 +416,26 @@ func NewFaceDetector(imagePath string) *FaceDetector {
 	}
 	return face
 
+}
+
+func NewFaceDetector(imagePath string) *FaceDetector {
+	var err error
+
+	defer func() {
+		if err != nil {
+			panic(err)
+			return
+		}
+	}()
+	f, err := os.Open(imagePath)
+	if err != nil {
+		return &FaceDetector{}
+	}
+	defer f.Close()
+	imgData, _, err := image.Decode(f)
+	if err != nil {
+		return &FaceDetector{}
+	}
+
+	return NewFaceDectectorFromImage(imgData)
 }

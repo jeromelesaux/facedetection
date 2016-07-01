@@ -12,7 +12,7 @@ GOARCH=amd64
 GOARM=7
 
 
-EXEC=facedectection
+EXEC=facedetection
 
 VERSION=1.0.0
 BUILD_TIME=`date +%FT%T%z`

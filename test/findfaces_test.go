@@ -24,3 +24,12 @@ func TestFindWomanFace(t *testing.T) {
 	f.DrawOnImage()
 
 }
+
+func TestMultipleFaces(t *testing.T) {
+	f := facedetector.NewFaceDetector("trainingset.png")
+	rects := f.GetFaces()
+	for _, r := range rects {
+		fmt.Println(r.ToString())
+	}
+	f.DrawOnImage()
+}
