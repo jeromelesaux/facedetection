@@ -3,6 +3,7 @@ package facedetector
 import (
 	"encoding/xml"
 	"fmt"
+	"github.com/disintegration/imaging"
 	"github.com/harrydb/go/img/grayscale"
 	"golang.org/x/image/draw"
 	"image"
@@ -214,7 +215,7 @@ func (f *FaceDetector) Equals(r1 *FoundRect, r2 *FoundRect) bool {
 
 func (f *FaceDetector) GetFaces() []*FoundRect {
 	fmt.Println("GetFaces.")
-	return f.merge(f.FoundRects, 1)
+	return f.merge(f.FoundRects, 4)
 }
 
 func (f *FaceDetector) merge(rects []*FoundRect, minNeighbors int64) []*FoundRect {
@@ -276,7 +277,8 @@ func (face *FaceDetector) DrawImageInDirectory(directory string) []string {
 		filename := directory + string(filepath.Separator) + "face_" + id + "_" + strconv.Itoa(r.X) + "_" + strconv.Itoa(r.Y) + "_" + strconv.Itoa(r.Width) + "_" + strconv.Itoa(r.Height) + strconv.Itoa(i) + ".png"
 		fdst, _ := os.Create(filename)
 		defer fdst.Close()
-		png.Encode(fdst, dst)
+		resizedDst := imaging.Resize(dst, 100, 100, imaging.Lanczos)
+		png.Encode(fdst, resizedDst)
 		fmt.Printf("File %s saved as png.\n", filename)
 		filesPath = append(filesPath, filename)
 	}
@@ -296,7 +298,8 @@ func (face *FaceDetector) DrawOnImage() {
 		filename := "face_" + id + "_" + strconv.Itoa(r.X) + "_" + strconv.Itoa(r.Y) + "_" + strconv.Itoa(r.Width) + "_" + strconv.Itoa(r.Height) + strconv.Itoa(i) + ".png"
 		fdst, _ := os.Create(filename)
 		defer fdst.Close()
-		png.Encode(fdst, dst)
+		resizedDst := imaging.Resize(dst, 100, 100, imaging.Lanczos)
+		png.Encode(fdst, resizedDst)
 		fmt.Printf("File %s saved as png.\n", filename)
 
 	}
@@ -409,7 +412,7 @@ func NewFaceDectectorFromImage(imgData image.Image) *FaceDetector {
 
 				if pass == true {
 					fr := &FoundRect{X: i, Y: j, Width: size, Height: size}
-					fmt.Println(fr)
+					//fmt.Println(fr)
 					face.FoundRects = append(face.FoundRects, fr)
 				}
 			}

@@ -33,3 +33,12 @@ func TestMultipleFaces(t *testing.T) {
 	}
 	f.DrawOnImage()
 }
+
+func TestGeorgeFace(t *testing.T) {
+	f := facedetector.NewFaceDetector("george-clooney.png")
+	rects := f.GetFaces()
+	for _, r := range rects {
+		fmt.Println(r.ToString())
+	}
+	f.DrawOnImage()
+}
