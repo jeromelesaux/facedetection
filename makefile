@@ -28,9 +28,9 @@ LDFLAGS=
 $(EXEC): organize $(SOURCES)
 		@echo "    Compilation des sources ${BUILD_TIME}"
 		@if  [ "arm" = "${GOARCH}" ]; then\
-		    GOPATH=$(PWD)/../.. GOOS=${GOOS} GOARCH=${GOARCH} GOARM=${GOARM} go build ${LDFLAGS} -o ${EXEC}-${VERSION} $(SOURCEDIR)/main.go;\
+		    GOOS=${GOOS} GOARCH=${GOARCH} GOARM=${GOARM} go build ${LDFLAGS} -o ${EXEC}-${VERSION} $(SOURCEDIR)/main.go;\
 		else\
-            GOPATH=$(PWD)/../.. GOOS=${GOOS} GOARCH=${GOARCH} GOARM=${GOARM} go build ${LDFLAGS} -o ${EXEC}-${VERSION} $(SOURCEDIR)/main.go;\
+            GOOS=${GOOS} GOARCH=${GOARCH} GOARM=${GOARM} go build ${LDFLAGS} -o ${EXEC}-${VERSION} $(SOURCEDIR)/main.go;\
         fi
 		@echo "    ${EXEC}-${VERSION} generated."
 
@@ -61,5 +61,5 @@ audit:   ${EXEC}
 		@echo "    Audit effectue"
 
 test: $(EXEC)
-		@GOPATH=$(PWD)/../.. GOOS=${GOOS} GOARCH=${GOARCH} go test ./...
+		@GOOS=${GOOS} GOARCH=${GOARCH} go test ./...
 		@echo " Tests OK."

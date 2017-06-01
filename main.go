@@ -1,8 +1,8 @@
 package main
 
 import (
-	"facedetection/facedetector"
 	"fmt"
+	"github.com/jeromelesaux/facedetection/facedetector"
 	"os"
 )
 
