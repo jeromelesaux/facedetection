@@ -303,9 +303,20 @@ func (face *FaceDetector) DrawOnImage() {
 		fmt.Printf("File %s saved as png.\n", filename)
 
 	}
-
 }
-func NewFaceDectectorFromImage(imgData image.Image) *FaceDetector {
+
+func NewFaceDetector(in interface{}, opencvfile string) *FaceDetector {
+	switch in.(type) {
+	case image.Image:
+		return NewFaceDetectorFromImage(in.(image.Image), opencvfile)
+	case string:
+		return NewFaceDetectorImagePath(in.(string), opencvfile)
+	default:
+		return nil
+	}
+}
+
+func NewFaceDetectorFromImage(imgData image.Image, opencvfile string) *FaceDetector {
 	var err error
 	face := &FaceDetector{}
 	defer func() {
@@ -321,7 +332,7 @@ func NewFaceDectectorFromImage(imgData image.Image) *FaceDetector {
 
 	configXml.Do(func() {
 
-		fxml, err := os.Open("haarcascade_frontalface_default.xml")
+		fxml, err := os.Open(opencvfile)
 		if err != nil {
 			panic(err.Error())
 			return
@@ -423,7 +434,7 @@ func NewFaceDectectorFromImage(imgData image.Image) *FaceDetector {
 
 }
 
-func NewFaceDetector(imagePath string) *FaceDetector {
+func NewFaceDetectorImagePath(imagePath string, opencvfile string) *FaceDetector {
 	var err error
 
 	defer func() {
@@ -443,5 +454,5 @@ func NewFaceDetector(imagePath string) *FaceDetector {
 	}
 	grayimg := grayscale.Convert(imgData, grayscale.ToGrayLuminance)
 
-	return NewFaceDectectorFromImage(grayimg)
+	return NewFaceDetectorFromImage(grayimg, opencvfile)
 }

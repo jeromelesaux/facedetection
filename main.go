@@ -16,7 +16,7 @@ func main() {
 	}
 	//
 	filename := os.Args[1]
-	f := facedetector.NewFaceDetector(filename)
+	f := facedetector.NewFaceDetector(filename, "haarcascade_frontalface_default.xml")
 	f.DrawOnImage()
 
 	//

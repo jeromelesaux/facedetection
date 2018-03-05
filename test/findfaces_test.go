@@ -35,7 +35,7 @@ func TestMultipleFaces(t *testing.T) {
 }
 
 func TestGeorgeFace(t *testing.T) {
-	f := facedetector.NewFaceDetector("george-clooney.png")
+	f := facedetector.NewFaceDetector("test.png")
 	rects := f.GetFaces()
 	for _, r := range rects {
 		fmt.Println(r.ToString())
