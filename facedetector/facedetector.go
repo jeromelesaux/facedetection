@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"github.com/disintegration/imaging"
 	"github.com/harrydb/go/img/grayscale"
-	"golang.org/x/image/draw"
 	"image"
+	"image/color"
+	"image/draw"
 	_ "image/gif"
 	_ "image/jpeg"
 	"image/png"
@@ -43,6 +44,7 @@ type FaceDetector struct {
 	Height         int
 	FoundRects     []*FoundRect
 	Image          image.Image
+	FinalImage     image.Image
 }
 
 type OpenCVFile struct {
@@ -318,7 +320,7 @@ func NewFaceDetector(in interface{}, opencvfile string) *FaceDetector {
 
 func NewFaceDetectorFromImage(imgData image.Image, opencvfile string) *FaceDetector {
 	var err error
-	face := &FaceDetector{}
+	face := &FaceDetector{FinalImage: imgData}
 	defer func() {
 		if err != nil {
 			panic(err)
@@ -455,4 +457,44 @@ func NewFaceDetectorImagePath(imagePath string, opencvfile string) *FaceDetector
 	grayimg := grayscale.Convert(imgData, grayscale.ToGrayLuminance)
 
 	return NewFaceDetectorFromImage(grayimg, opencvfile)
+}
+
+func (f *FaceDetector) DrawFaces() *image.RGBA {
+	inImage := ConvertToRGBA(f.FinalImage)
+	for _, v := range f.FoundRects {
+		DrawRect(v.X, v.Y, v.X+v.Width, v.Y+v.Height, 2, inImage)
+	}
+	return inImage
+}
+
+func ConvertToRGBA(in image.Image) *image.RGBA {
+	b := in.Bounds()
+	imgSet := image.NewRGBA(b)
+	for y := 0; y < b.Max.Y; y++ {
+		for x := 0; x < b.Max.X; x++ {
+			oldPixel := in.At(x, y)
+			r, g, b, _ := oldPixel.RGBA()
+			lum := 0.299*float64(r) + 0.587*float64(g) + 0.114*float64(b)
+			pixel := color.Gray{uint8(lum / 256)}
+			imgSet.Set(x, y, pixel)
+		}
+	}
+	return imgSet
+}
+
+func DrawRect(x1, y1, x2, y2, thickness int, img *image.RGBA) {
+	col := color.RGBA{0, 255, 0, 255}
+
+	for t := 0; t < thickness; t++ {
+		// draw horizontal lines
+		for x := x1; x <= x2; x++ {
+			img.Set(x, y1+t, col)
+			img.Set(x, y2-t, col)
+		}
+		// draw vertical lines
+		for y := y1; y <= y2; y++ {
+			img.Set(x1+t, y, col)
+			img.Set(x2-t, y, col)
+		}
+	}
 }
