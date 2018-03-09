@@ -42,3 +42,13 @@ func TestGeorgeFace(t *testing.T) {
 	}
 	f.DrawOnImage()
 }
+
+
+func TestObamaFace(t *testing.T) {
+	f := facedetector.NewFaceDetector("obama.jpg")
+	rects := f.GetFaces()
+	for _, r := range rects {
+		fmt.Println(r.ToString())
+	}
+	f.DrawOnImage()
+}

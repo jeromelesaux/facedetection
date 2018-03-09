@@ -217,7 +217,7 @@ func (f *FaceDetector) Equals(r1 *FoundRect, r2 *FoundRect) bool {
 
 func (f *FaceDetector) GetFaces() []*FoundRect {
 	fmt.Println("GetFaces.")
-	return f.merge(f.FoundRects, 4)
+	return f.merge(f.FoundRects, 5)
 }
 
 func (f *FaceDetector) merge(rects []*FoundRect, minNeighbors int64) []*FoundRect {
@@ -237,6 +237,7 @@ func (f *FaceDetector) merge(rects []*FoundRect, minNeighbors int64) []*FoundRec
 			nbClasses++
 		}
 	}
+	fmt.Printf("nbclasses:%d",nbClasses)
 	neighbors := make([]int, len(rects))
 	rect := make([]*FoundRect, 0)
 	for i := 0; i < len(rects); i++ {
@@ -260,6 +261,25 @@ func (f *FaceDetector) merge(rects []*FoundRect, minNeighbors int64) []*FoundRec
 			r.Width = (rect[i].Width*2 + n) / (2 * n)
 			r.Height = (rect[i].Height*2 + n) / (2 * n)
 			retour = append(retour, r)
+		}
+	}
+
+	if len(rects) > 0 {
+		// add the greatest face found
+		greatestFace := rects[0]
+		for i:=1; i < len(rects); i++{
+			if greatestFace.Width < rects[i].Width && greatestFace.Height < rects[i].Height {
+				greatestFace = rects[i]
+			}
+		}
+		isAlreadyFound := false 
+		for _,v :=range retour {
+			if v.X == greatestFace.X && v.Y == greatestFace.Y && v.Width == greatestFace.Width && v.Height == greatestFace.Height  {
+				isAlreadyFound = true
+			}
+		}
+		if !isAlreadyFound {
+			retour = append(retour,greatestFace)
 		}
 	}
 	return retour
