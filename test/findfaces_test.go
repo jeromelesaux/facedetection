@@ -1,9 +1,10 @@
 package test
 
 import (
-	"facedetection/facedetector"
 	"fmt"
 	"testing"
+
+	"github.com/jeromelesaux/facedetection/facedetector"
 )
 
 func TestFindCarellFace(t *testing.T) {
